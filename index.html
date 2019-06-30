@@ -1,4 +1,4 @@
-<html><head><title>SPOT Contract Search Test</title>
+<html><head><title>SPOT Contract Search</title>
 
 <script type="text/javascript" src="//www.google.com/jsapi"></script>
 <script type="text/javascript">
@@ -14,12 +14,29 @@ function removeChildrenFromNode(node) {
 var key='1N0RgS_cckfZ4f3todJ4XIXBZFg5zuMfDJ33ExNCIOZ0';
   
 function drawViz() {
+  removeChildrenFromNode(document.getElementById('preview'));
   var company = document.getElementById('company').value;
   var date = document.getElementById('date').value;
-  var gq='SELECT * WHERE A CONTAINS("' + company + '")'
-  if (date != "") {
-    qq += ' AND C <= Date "' + date + '" AND Date "' + date + '" <= D';
+  var limit = document.getElementById('limit').value;
+  var qCompany = "";
+  if (company != "") {
+    qCompany = '(A CONTAINS("' + company + '"))';
   }
+  var qDate = "";
+  if (date != "") {
+    qDate = '(C <= Date "' + date + '" AND Date "' + date + '" <= D)';
+  }
+  var gq = 'SELECT *';
+  if (qCompany != "" || qDate != "") {
+    gq += " WHERE ";
+    gq += qCompany;
+    if (qCompany != "" && qDate != "") {
+      gq += " AND ";
+    }
+    gq += qDate;
+  }
+  gq += " LIMIT " + limit;
+
   document.getElementById('gqpreview').innerHTML=gq;
   gq=encodeURIComponent(gq);
   
@@ -36,7 +53,6 @@ function handleQueryResponse2(response) {
   }
 
   var data = response.getDataTable();
-  removeChildrenFromNode(document.getElementById('preview'));
   new google.visualization.Table(document.getElementById('preview')).draw(data, null);      
 }
 
@@ -45,14 +61,15 @@ function handleQueryResponse2(response) {
 </head>
 <body>
 <h1>SPOT Contract Search</h1>
-<form name="args" onsubmit="drawViz(); return false">
+<form name="args" onsubmit="drawViz(); return false; ">
 Company <input type="text" size=30 id='company'  /> 
 Date <input type="date" size=30 id='date'/> 
+Limit <input type="number" size=30 id='limit' value='100'/> 
 <input type="button" value='Search' onclick="drawViz()"/>
 </form>
 <hr/>
 
-<div>So you are asking: <em id='gqpreview'></em></div>
+<div><em id='gqpreview'></em></div>
 <div id="preview"></div>
 
 </body>
