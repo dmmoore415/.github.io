@@ -7,12 +7,12 @@
 function removeChildrenFromNode(node) {
   if (node.hasChildNodes()) {
     while(node.childNodes.length >= 1 ) {
-        node.removeChild(node.firstChild);       
-    } 
+        node.removeChild(node.firstChild);
+    }
   }
 }
 var key='1N0RgS_cckfZ4f3todJ4XIXBZFg5zuMfDJ33ExNCIOZ0';
-  
+
 function drawViz() {
   removeChildrenFromNode(document.getElementById('preview'));
   var company = document.getElementById('company').value;
@@ -20,13 +20,13 @@ function drawViz() {
   var limit = document.getElementById('limit').value;
   var qCompany = "";
   if (company != "") {
-    qCompany = '(A CONTAINS("' + company + '"))';
+    qCompany = '(M CONTAINS("' + company.toUpperCase() + '"))';
   }
   var qDate = "";
   if (date != "") {
     qDate = '(C <= Date "' + date + '" AND Date "' + date + '" <= D)';
   }
-  var gq = 'SELECT *';
+  var gq = 'SELECT B,A,C,D,E,F,G,H,I,J,K,L';
   if (qCompany != "" || qDate != "") {
     gq += " WHERE ";
     gq += qCompany;
@@ -35,13 +35,15 @@ function drawViz() {
     }
     gq += qDate;
   }
+  gq += " ORDER BY C, D, A";
   gq += " LIMIT " + limit;
 
-  document.getElementById('gqpreview').innerHTML=gq;
+  <!-- document.getElementById('gqpreview').innerHTML=gq; -->
+  document.getElementById('gqpreview').innerHTML="Loading";
   gq=encodeURIComponent(gq);
-  
+
   var url='http://spreadsheets.google.com/tq?tq='+gq+'&key='+key;
-                
+
   var query = new google.visualization.Query(url);
   query.send(handleQueryResponse2);
 }
@@ -52,19 +54,20 @@ function handleQueryResponse2(response) {
     return;
   }
 
+  document.getElementById('gqpreview').innerHTML="";
   var data = response.getDataTable();
-  new google.visualization.Table(document.getElementById('preview')).draw(data, null);      
+  new google.visualization.Table(document.getElementById('preview')).draw(data, null);
 }
 
 </script>
- 
+
 </head>
 <body>
 <h1>SPOT Contract Search</h1>
 <form name="args" onsubmit="drawViz(); return false; ">
-Company <input type="text" size=30 id='company'  /> 
-Date <input type="date" size=30 id='date'/> 
-Limit <input type="number" size=30 id='limit' value='100'/> 
+Company <input type="text" size=30 id='company' onKeyDown="if(event.keyCode==13) drawViz();" />
+Date <input type="date" size=30 id='date' onKeyDown="if(event.keyCode==13) drawViz();"/>
+Limit <input type="number" size=30 id='limit' value='100' onKeyDown="if(event.keyCode==13) drawViz();"/>
 <input type="button" value='Search' onclick="drawViz()"/>
 </form>
 <hr/>
