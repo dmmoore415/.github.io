@@ -17,7 +17,6 @@ function drawViz() {
   removeChildrenFromNode(document.getElementById('preview'));
   var company = document.getElementById('company').value;
   var date = document.getElementById('date').value;
-  var limit = document.getElementById('limit').value;
   var qCompany = "";
   if (company != "") {
     qCompany = '(M CONTAINS("' + company.toUpperCase() + '"))';
@@ -36,7 +35,6 @@ function drawViz() {
     gq += qDate;
   }
   gq += " ORDER BY C, D, A";
-  gq += " LIMIT " + limit;
 
   <!-- document.getElementById('gqpreview').innerHTML=gq; -->
   document.getElementById('gqpreview').innerHTML="Loading";
@@ -56,7 +54,7 @@ function handleQueryResponse2(response) {
 
   document.getElementById('gqpreview').innerHTML="";
   var data = response.getDataTable();
-  new google.visualization.Table(document.getElementById('preview')).draw(data, null);
+  new google.visualization.Table(document.getElementById('preview')).draw(data, {page: true, frozenColumns: 4});
 }
 
 </script>
@@ -67,7 +65,6 @@ function handleQueryResponse2(response) {
 <form name="args" onsubmit="drawViz(); return false; ">
 Company <input type="text" size=30 id='company' onKeyDown="if(event.keyCode==13) drawViz();" />
 Date <input type="date" size=30 id='date' onKeyDown="if(event.keyCode==13) drawViz();"/>
-Limit <input type="number" size=30 id='limit' value='100' onKeyDown="if(event.keyCode==13) drawViz();"/>
 <input type="button" value='Search' onclick="drawViz()"/>
 </form>
 <hr/>
